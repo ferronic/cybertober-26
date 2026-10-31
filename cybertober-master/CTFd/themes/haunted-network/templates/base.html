@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{{ title ~ " | " if title else "" }}{{ Configs.ctf_name or "CYBERTOBER'26" }} - MuLearn Cyber</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CYBERTOBER'26 — One State. Many Campuses. A Safer Digital Future. An OSINT Investigation Challenge by µLearn Cyber IG × Ekholon — November 1, 2026, Kerala.">
+  {% if Configs.ctf_small_icon and get_config('ctf_small_icon') %}
+    <link rel="shortcut icon" href="{{ Configs.ctf_small_icon }}" type="image/x-icon">
+  {% elif Configs.ctf_logo %}
+    <link rel="shortcut icon" href="{{ url_for('views.files', path=Configs.ctf_logo) }}" type="image/png">
+  {% else %}
+    <link rel="shortcut icon" href="{{ url_for('views.themes_beta', theme='haunted-network', path='img/logo.png') }}" type="image/png">
+  {% endif %}
+
+  <!-- Preconnect and Load Atmospheric & Horror Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Creepster&family=Nosifer&family=Space+Grotesk:wght@400;500;600;700&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  {{ meta | safe }}
+
+  {% block stylesheets %}
+    {{ Assets.css("assets/scss/main.scss") }}
+  {% endblock %}
+
+  {{ Plugins.styles }}
+
+  {{ Assets.js("assets/js/color_mode_switcher.js", type=None) }}
+
+  <script type="text/javascript">
+      window.init = {
+          'urlRoot': "{{ request.script_root }}",
+          'csrfNonce': "{{ Session.nonce }}",
+          'userMode': "{{ Configs.user_mode }}",
+          'userId': {{ Session.id }},
+          'userName': {{ User.name | tojson }},
+          'userEmail': {{ User.email | tojson }},
+          'userVerified': {{ User.verified | tojson }},
+          'teamId': {{ Team.id | tojson }},
+          'teamName': {{ Team.name | tojson }},
+          'start': {{ Configs.start | tojson }},
+          'end': {{ Configs.end | tojson }},
+          'themeSettings': {{ Configs.theme_settings | tojson }},
+          'eventSounds': [
+            "{{ url_for('views.themes_beta', theme='haunted-network', path='sounds/notification.webm') }}",
+            "{{ url_for('views.themes_beta', theme='haunted-network', path='sounds/notification.mp3') }}",
+          ],
+      }
+  </script>
+
+  {{ Configs.theme_header }}
+</head>
+<body class="haunted-bg">
+<canvas id="ambientGlobalParticles" class="global-particles-canvas" aria-hidden="true"></canvas>
+
+{% include "components/navbar.html" %}
+
+<main role="main">
+  {% block content %}
+  {% endblock %}
+</main>
+
+{% include "components/snackbar.html" %}
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="footer-brand-title">CYBERTOBER'26</span>
+        <span class="footer-brand-collab">µLearn Cyber IG × Ekholon</span>
+      </div>
+
+      <div class="footer-copy">
+        <span class="text-muted">CYBERTOBER'26 &bull; &mu;Learn Cyber IG &bull; November 1, 2026</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% include "components/notifications.html" %}
+
+{% block scripts %}
+  {{ Assets.js("assets/js/page.js") }}
+{% endblock %}
+
+<script>
+  // Global Ambient Floating Dust & Embers (Transparent, High Performance)
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const canvas = document.getElementById('ambientGlobalParticles');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    const palette = [
+      'rgba(255, 73, 53, ',   // Neon Crimson / Ember
+      'rgba(255, 120, 40, ',  // Fiery Orange Ember
+      'rgba(230, 240, 74, ',  // Moon Yellow Mote
+      'rgba(74, 217, 240, ',  // Cyber Cyan Spark
+      'rgba(240, 238, 233, '  // Ghostly White
+    ];
+
+    const resize = () => {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    const particleCount = Math.min(65, Math.max(35, Math.floor((window.innerWidth * window.innerHeight) / 22000)));
+    const particles = Array.from({ length: particleCount }, () => ({
+      x: Math.random() * (W || 1200),
+      y: Math.random() * (H || 800),
+      r: Math.random() * 2.0 + 0.8,
+      vx: (Math.random() - 0.5) * 0.28,
+      vy: -(Math.random() * 0.45 + 0.15),
+      life: Math.random() * Math.PI * 2,
+      pulseSpeed: Math.random() * 0.02 + 0.01,
+      baseColor: palette[Math.floor(Math.random() * palette.length)]
+    }));
+
+    let scrollBoost = 1.0;
+    let scrollBoostTimer = null;
+    window.addEventListener('scroll', () => {
+      scrollBoost = 1.6;
+      clearTimeout(scrollBoostTimer);
+      scrollBoostTimer = setTimeout(() => { scrollBoost = 1.0; }, 140);
+    }, { passive: true });
+
+    const animate = () => {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        p.life += p.pulseSpeed;
+        const alpha = 0.22 + Math.abs(Math.sin(p.life)) * 0.50;
+        p.x += p.vx + Math.sin(p.life * 1.5) * 0.22;
+        p.y += p.vy * scrollBoost;
+
+        if (p.y < -12) { p.y = H + 12; p.x = Math.random() * W; }
+        if (p.x < -12) p.x = W + 12;
+        if (p.x > W + 12) p.x = -12;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.baseColor + alpha.toFixed(3) + ')';
+        ctx.shadowBlur = p.r * 4;
+        ctx.shadowColor = p.baseColor + '0.7)';
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    };
+    animate();
+  })();
+
+  // Global Hash Handler & Smooth Scroll for navigation links
+  (function () {
+    const handleHash = () => {
+      if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    };
+
+    document.querySelectorAll('a[href*="#"]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const href = el.getAttribute('href');
+        if (!href) return;
+        const hashIdx = href.indexOf('#');
+        if (hashIdx === -1) return;
+        const hash = href.substring(hashIdx);
+        if (hash && hash.length > 1) {
+          const target = document.querySelector(hash);
+          const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('/index');
+          if (target && (isHomePage || href.startsWith('#'))) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.pushState(null, null, hash);
+          }
+        }
+      });
+    });
+
+    if (window.location.hash) {
+      setTimeout(handleHash, 150);
+    }
+  })();
+</script>
+
+{{ Plugins.scripts }}
+
+{{ Configs.theme_footer }}
+</body>
+</html>

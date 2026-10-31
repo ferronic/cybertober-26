@@ -1,0 +1,579 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if request.path == '/' or request.path == '/index' or route == 'index' or not content %}
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 1 — HERO
+       ════════════════════════════════════════════════════════════ -->
+  <section class="hero-landing" id="hero">
+    <!-- Atmospheric Ambient Vignette -->
+    <div class="hero-vignette-overlay" aria-hidden="true"></div>
+
+    <!-- Floating Particles Canvas -->
+    <canvas class="hero-particles-canvas" id="heroParticles" aria-hidden="true"></canvas>
+
+    <div class="container hero-container position-relative">
+      <div class="row align-items-center">
+
+        <!-- LEFT COLUMN: Brand, Title, Description, CTAs -->
+        <div class="col-12 col-lg-10 col-xl-10 hero-left-col">
+
+          <!-- Collaboration Branding: µLearn × Ekholon -->
+          <div class="hero-collab-bar" aria-label="Organized by µLearn Cyber IG in collaboration with Ekholon">
+            <img
+              src="{{ url_for('views.themes_beta', theme='haunted-network', path='img/mulearn-logo.png') }}"
+              alt="µLearn, a GTech Initiative"
+              class="collab-logo collab-mulearn"
+            >
+            <span class="collab-sep" aria-hidden="true">×</span>
+            <img
+              src="{{ url_for('views.themes_beta', theme='haunted-network', path='img/ekholon-logo.png') }}"
+              alt="Ekholon"
+              class="collab-logo collab-ekholon"
+            >
+          </div>
+
+          <!-- Main Dripping Horror Title -->
+          <h1 class="horror-title" data-text="CYBERTOBER'26">
+            <span class="title-word">CYBERTOBER</span>
+            <span class="title-year-wrap">
+              <span class="title-year">'26</span>
+            </span>
+          </h1>
+
+          <!-- Cyan Tagline -->
+          <p class="hero-tagline">
+            ONE STATE. MANY CAMPUSES. A SAFER DIGITAL FUTURE.
+          </p>
+
+          <!-- Sub-Tagline Description -->
+          <p class="hero-sub-tagline">
+            Something has stirred beneath Kerala’s digital shadows. Strange signals, vanished traces, and fragments of a hidden story are beginning to surface. Follow the evidence, uncover what was buried, and discover what waits beyond the signal.
+          </p>
+
+          <!-- Buttons Row: Date Badge + Enter The Night Action -->
+          <div class="hero-action-row">
+            <div class="event-date-thorn-badge" aria-label="Event date: November 1, 2026">
+              <span class="date-badge-kicker">THE NIGHT OF</span>
+              <span class="date-badge-day">01</span>
+              <span class="date-badge-month">NOVEMBER 2026</span>
+            </div>
+
+            <div class="hero-cta-wrap">
+              {% if authed() %}
+                <a href="{{ url_for('challenges.listing') }}" class="btn-cta-night" id="hero-enter-btn">
+                  <span>ENTER THE NIGHT</span>
+                  <span class="cta-arrow">&rarr;</span>
+                </a>
+              {% elif registration_visible() %}
+                <a href="{{ url_for('auth.login') }}" class="btn-cta-night" id="hero-enter-btn">
+                  <span>ENTER THE NIGHT</span>
+                  <span class="cta-arrow">&rarr;</span>
+                </a>
+              {% else %}
+                <a href="#investigation" class="btn-cta-night" id="hero-enter-btn" data-smooth-scroll>
+                  <span>ENTER THE NIGHT</span>
+                  <span class="cta-arrow">&rarr;</span>
+                </a>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- CENTER-ALIGNED TECHNICAL STATUS & COUNTDOWN HUD ROW -->
+      <div class="row justify-content-center hero-hud-row mt-3">
+        <div class="col-12 d-flex justify-content-center">
+          <div class="hud-countdown-card" x-data="EventTimer()" x-init="startTimer()">
+            <!-- Technical Corner Reticles -->
+            <span class="hud-crosshair hud-cross-tl">+</span>
+            <span class="hud-crosshair hud-cross-tr">+</span>
+            <span class="hud-crosshair hud-cross-bl">+</span>
+            <span class="hud-crosshair hud-cross-br">+</span>
+
+            <!-- Status Indicator Header -->
+            <div class="hud-status-bar">
+              <span class="hud-status-dot" :class="statusClass"></span>
+              <span class="hud-status-label">STATUS:</span>
+              <span class="hud-status-state" :class="statusClass" x-text="statusBadge">LIVE</span>
+              <span class="hud-status-slash">//</span>
+              <span class="hud-status-desc" x-text="statusDetail">ARENA OPEN</span>
+            </div>
+
+            <!-- 4-Column Time Units Display -->
+            <div class="hud-grid">
+              <div class="hud-cell">
+                <span class="hud-number" x-text="days">01</span>
+                <span class="hud-tag">DAYS</span>
+              </div>
+              <div class="hud-sep"></div>
+              <div class="hud-cell">
+                <span class="hud-number" x-text="hours">00</span>
+                <span class="hud-tag">HOURS</span>
+              </div>
+              <div class="hud-sep"></div>
+              <div class="hud-cell">
+                <span class="hud-number" x-text="minutes">00</span>
+                <span class="hud-tag">MINUTES</span>
+              </div>
+              <div class="hud-sep"></div>
+              <div class="hud-cell">
+                <span class="hud-number" x-text="seconds">00</span>
+                <span class="hud-tag">SECONDS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated Scroll Prompt -->
+    <div class="hero-scroll-indicator" id="heroScrollIndicator" aria-hidden="true">
+      <div class="scroll-mouse"></div>
+      <span>SCROLL</span>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 2 — THE INVESTIGATION BEGINS: VEIL
+       ════════════════════════════════════════════════════════════ -->
+  <section class="section-investigation reveal-section" id="investigation">
+    <div class="section-glow-divider" aria-hidden="true"></div>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-11 col-lg-9 text-center">
+          <p class="section-eyebrow reveal-up">// SIGNAL DETECTED &bull; CLASSIFIED DOSSIER</p>
+          <h2 class="section-heading veil-heading reveal-up delay-1">
+            <span class="heading-pumpkin" aria-hidden="true">🎃</span> CYBERTOBER’26 presents: <span class="text-accent-red font-horror">VEIL</span>
+          </h2>
+          <div class="investigation-separator reveal-up delay-2" aria-hidden="true"></div>
+
+          <p class="investigation-lead reveal-up delay-2">
+            <em>Somewhere in the depths of the internet, something is watching.</em>
+          </p>
+
+          <p class="investigation-body reveal-up delay-3">
+            Strange accounts, unexplained digital footprints, mysterious messages, and fragments of information have begun surfacing across the network. Whispers speak of an unknown presence known only as <strong class="text-accent-yellow">VEIL</strong>—an entity that leaves traces but never reveals itself.
+          </p>
+
+          <p class="investigation-highlight reveal-up delay-3">
+            Is it a forgotten identity, a digital ghost, or something far more unsettling?
+          </p>
+
+          <p class="investigation-body reveal-up delay-4">
+            Step into the shadows of the digital world. Investigate suspicious trails, uncover hidden information, expose deception, and explore the secrets buried beneath the surface. Every trace has a story, and every discovery brings you closer to the unknown.
+          </p>
+
+          <p class="investigation-cta-phrase reveal-up delay-4">
+            <strong>The internet holds more than what meets the eye. Dare to look beyond the VEIL.</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="section-fog-bottom" aria-hidden="true"></div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 3 — REWARDS
+       ════════════════════════════════════════════════════════════ -->
+  <section class="section-rewards reveal-section" id="rewards">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8 text-center">
+          <p class="section-eyebrow reveal-up">// WHAT AWAITS</p>
+          <h2 class="section-heading reveal-up delay-1">REWARDS</h2>
+          <div class="rewards-first-prize reveal-card delay-2" id="rewards-first-prize">
+            <div class="rewards-prize-rank">FIRST PRIZE</div>
+            <div class="rewards-prize-amount">&#8377;300 CASH</div>
+            <div class="rewards-prize-plus" aria-hidden="true">+</div>
+            <div class="rewards-prize-karma">KARMA POINTS</div>
+          </div>
+          <p class="rewards-note reveal-up delay-3">
+            Participants can also earn <span class="text-accent-yellow">Karma Points</span> according to the event's reward criteria.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 5 — RULES OF ENGAGEMENT
+       ════════════════════════════════════════════════════════════ -->
+  <section class="section-rules reveal-section" id="rules">
+    <div class="section-glow-divider" aria-hidden="true"></div>
+    <div class="container">
+      <div class="row justify-content-center mb-5">
+        <div class="col-12 col-md-10 col-lg-8 text-center">
+          <p class="section-eyebrow reveal-up">// CODE OF CONDUCT &amp; PROTOCOLS</p>
+          <h2 class="section-heading reveal-up delay-1">RULES OF ENGAGEMENT</h2>
+          <div class="investigation-separator reveal-up delay-2" aria-hidden="true"></div>
+          <p class="section-subheading reveal-up delay-2">
+            Maintain integrity, investigate ethically, and adhere strictly to all official operational directives.
+          </p>
+        </div>
+      </div>
+
+      <div class="row g-4 justify-content-center rules-grid">
+        <div class="col-12 col-md-6 col-lg-4 reveal-card delay-1">
+          <div class="rule-card">
+            <div class="rule-header">
+              <span class="rule-num">01</span>
+              <span class="rule-badge">ETHICAL</span>
+            </div>
+            <h3 class="rule-title">Pure OSINT Only</h3>
+            <p class="rule-desc">
+              All challenges are solvable strictly using open-source intelligence and public resources. Never attack, breach, brute-force, or exploit any target infrastructure, websites, or personal accounts.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 reveal-card delay-2">
+          <div class="rule-card">
+            <div class="rule-header">
+              <span class="rule-num">02</span>
+              <span class="rule-badge rule-badge-danger">FORBIDDEN</span>
+            </div>
+            <h3 class="rule-title">No Flag Sharing &amp; Collusion</h3>
+            <p class="rule-desc">
+              Sharing flags, solutions, hints, or credentials with other participants or outside parties is strictly prohibited. Unfair collaboration will result in immediate disqualification.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 reveal-card delay-3">
+          <div class="rule-card">
+            <div class="rule-header">
+              <span class="rule-num">03</span>
+              <span class="rule-badge rule-badge-warning">DEFENSE</span>
+            </div>
+            <h3 class="rule-title">Platform Integrity</h3>
+            <p class="rule-desc">
+              Do not launch automated high-volume fuzzing, DoS/DDoS attacks, or intrusive scans against the CYBERTOBER platform or hosting servers. The CTFd platform itself is never a challenge target.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 reveal-card delay-4">
+          <div class="rule-card">
+            <div class="rule-header">
+              <span class="rule-num">04</span>
+              <span class="rule-badge">COMMUNICATIONS</span>
+            </div>
+            <h3 class="rule-title">Official Announcements</h3>
+            <p class="rule-desc">
+              Official hints, challenge updates, and time announcements will only be broadcast via the platform notifications and official µLearn / Ekholon channels. Always check official transmissions.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 reveal-card delay-5">
+          <div class="rule-card">
+            <div class="rule-header">
+              <span class="rule-num">05</span>
+              <span class="rule-badge rule-badge-accent">DECISIONS</span>
+            </div>
+            <h3 class="rule-title">Fair Play &amp; Final Decisions</h3>
+            <p class="rule-desc">
+              Compete in good faith and show sportsmanship towards all investigators. The organizers reserve the right to review suspicious submissions. All rulings by the CTF admin committee are final.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       SECTION 6 — ORGANIZED BY (COMPACT)
+       ════════════════════════════════════════════════════════════ -->
+  <section class="section-collaboration reveal-section" id="collaboration">
+    <div class="section-glow-divider" aria-hidden="true"></div>
+    <div class="container">
+      <div class="row justify-content-center text-center">
+        <div class="col-12 col-md-10 col-lg-8">
+          <p class="section-eyebrow reveal-up mb-2">// INITIATIVE</p>
+          <h2 class="section-heading reveal-up delay-1 mb-2">ORGANIZED BY</h2>
+
+          <div class="collab-logos-row reveal-up delay-2" aria-label="µLearn Cyber IG and Ekholon">
+            <div class="collab-logo-block">
+              <img
+                src="{{ url_for('views.themes_beta', theme='haunted-network', path='img/mulearn-logo.png') }}"
+                alt="µLearn, a GTech Initiative"
+                class="collab-section-logo collab-section-mulearn"
+              >
+              <span class="collab-org-name">µLearn Cyber IG</span>
+            </div>
+            <span class="collab-section-sep" aria-hidden="true">×</span>
+            <div class="collab-logo-block">
+              <img
+                src="{{ url_for('views.themes_beta', theme='haunted-network', path='img/ekholon-logo.png') }}"
+                alt="Ekholon"
+                class="collab-section-logo collab-section-ekholon"
+              >
+              <span class="collab-org-name">Ekholon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scroll progress indicator -->
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+
+  {% if content %}
+    <div class="container py-4">
+      <div class="terminal-card">
+        <div class="terminal-body">
+          {{ content | safe }}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+{% else %}
+  <!-- SUBPAGE / CUSTOM MARKDOWN PAGE -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1>{{ title or "System Directive" }}</h1>
+    </div>
+  </div>
+
+  <div class="container my-5">
+    <div class="terminal-card">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="terminal-title">{{ title or "Document" }}</span>
+        <span class="terminal-tag">[CONFIDENTIAL]</span>
+      </div>
+      <div class="terminal-body" style="line-height: 1.8;">
+        {{ content | safe }}
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ Assets.js("assets/js/page.js") }}
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('EventTimer', () => ({
+        days: '01',
+        hours: '00',
+        minutes: '00',
+        seconds: '00',
+        statusClass: 'live',
+        statusBadge: 'LIVE',
+        statusDetail: 'ARENA OPEN',
+
+        startTimer() {
+          const start = window.init.start ? window.init.start * 1000 : null;
+          const end = window.init.end ? window.init.end * 1000 : null;
+
+          const update = () => {
+            const now = Date.now();
+
+            if (start && now < start) {
+              this.statusClass = 'upcoming';
+              this.statusBadge = 'UPCOMING';
+              this.statusDetail = 'COMMENCING SOON';
+              this.calcTime(start - now);
+            } else if (end && now > end) {
+              this.statusClass = 'ended';
+              this.statusBadge = 'CONCLUDED';
+              this.statusDetail = 'ARCHIVE MODE';
+              this.days = '00'; this.hours = '00';
+              this.minutes = '00'; this.seconds = '00';
+            } else if (end) {
+              this.statusClass = 'live';
+              this.statusBadge = 'LIVE';
+              this.statusDetail = 'TIME REMAINING';
+              this.calcTime(end - now);
+            } else {
+              const eventEnd = new Date('2026-11-01T23:59:59+05:30').getTime();
+              if (now < eventEnd) {
+                this.statusClass = 'upcoming';
+                this.statusBadge = 'UPCOMING';
+                this.statusDetail = 'COMMENCING SOON';
+                this.calcTime(eventEnd - now);
+              } else {
+                this.statusClass = 'ended';
+                this.statusBadge = 'CONCLUDED';
+                this.statusDetail = 'ARCHIVE MODE';
+                this.days = '00'; this.hours = '00';
+                this.minutes = '00'; this.seconds = '00';
+              }
+            }
+          };
+
+          update();
+          setInterval(update, 1000);
+        },
+
+        calcTime(diff) {
+          if (diff <= 0) return;
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const s = Math.floor((diff % (1000 * 60)) / 1000);
+          this.days    = String(d).padStart(2, '0');
+          this.hours   = String(h).padStart(2, '0');
+          this.minutes = String(m).padStart(2, '0');
+          this.seconds = String(s).padStart(2, '0');
+        }
+      }));
+    });
+
+    // ─── Smooth Scroll ─────────────────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const href = el.getAttribute('href');
+        if (href && href.length > 1) {
+          const target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+
+    // Dynamic Scroll-Driven Animations: Parallax Drift, Smooth Fade, and Progress Tracking
+    (function () {
+      const bar = document.getElementById('scrollProgressBar');
+      const heroContainer = document.querySelector('.hero-landing .hero-container');
+      const scrollIndicator = document.getElementById('heroScrollIndicator');
+
+      const onScroll = () => {
+        const scrollY = window.scrollY;
+
+        // 1. Progress Bar Update
+        if (bar) {
+          const total = document.documentElement.scrollHeight - window.innerHeight;
+          bar.style.width = total > 0 ? (scrollY / total * 100) + '%' : '0%';
+        }
+
+        // 2. Hero Content Parallax & Smooth Dissolve Fade
+        if (heroContainer) {
+          const heroH = window.innerHeight;
+          if (scrollY < heroH) {
+            const fadeProgress = Math.min(1, scrollY / (heroH * 0.72));
+            heroContainer.style.opacity = Math.max(0, 1 - fadeProgress * 1.15).toFixed(3);
+            heroContainer.style.transform = 'translateY(' + (scrollY * 0.22).toFixed(1) + 'px)';
+          } else {
+            heroContainer.style.opacity = '0';
+          }
+        }
+
+        // 3. Scroll Indicator Fade
+        if (scrollIndicator) {
+          if (scrollY > 40) {
+            scrollIndicator.classList.add('scrolled-out');
+          } else {
+            scrollIndicator.classList.remove('scrolled-out');
+          }
+        }
+      };
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    // Intersection Observer: Reveal Sections & Cards on Scroll
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('.reveal-up, .reveal-card, .reveal-section').forEach(el => {
+          el.classList.add('revealed');
+        });
+        return;
+      }
+      const opts = { threshold: 0.12, rootMargin: '0px 0px -40px 0px' };
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('revealed');
+            observer.unobserve(e.target);
+          }
+        });
+      }, opts);
+      document.querySelectorAll('.reveal-up, .reveal-card, .reveal-section').forEach(el => observer.observe(el));
+    })();
+
+    // ─── Hero Section: Floating & Fading Red Particles ──────────
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const canvas = document.getElementById('heroParticles');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let W, H;
+
+      const resize = () => {
+        W = canvas.width = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+      };
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      // Glowing crimson and red ember palette
+      const redPalette = [
+        'rgba(255, 45, 30, ',   // Blood Red
+        'rgba(255, 73, 53, ',   // Neon Crimson
+        'rgba(255, 105, 30, ',  // Fiery Ember
+        'rgba(220, 20, 60, ',   // Deep Crimson
+        'rgba(255, 30, 0, '     // Scarlet
+      ];
+
+      const count = Math.min(80, Math.max(40, Math.floor((window.innerWidth * 550) / 10000)));
+      const particles = Array.from({ length: count }, () => {
+        const y = Math.random() * (H || 800);
+        return {
+          x: Math.random() * (W || 1200),
+          y: y,
+          r: Math.random() * 2.2 + 0.8,
+          vy: -(Math.random() * 0.7 + 0.3), // Float bottom to up
+          vx: (Math.random() - 0.5) * 0.3,
+          wobbleSpeed: Math.random() * 0.02 + 0.008,
+          wobbleOffset: Math.random() * Math.PI * 2,
+          baseColor: redPalette[Math.floor(Math.random() * redPalette.length)],
+          maxAlpha: Math.random() * 0.45 + 0.45 // Peak brightness
+        };
+      });
+
+      const animate = () => {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+          p.wobbleOffset += p.wobbleSpeed;
+          p.x += p.vx + Math.sin(p.wobbleOffset) * 0.25;
+          p.y += p.vy;
+
+          // As particle floats up (p.y approaches 0), it slowly fades out
+          const progress = Math.max(0, Math.min(1, p.y / H));
+          const alpha = p.maxAlpha * Math.pow(progress, 0.75);
+
+          // Respawn at bottom when it reaches the top or fully fades
+          if (p.y < -8 || alpha <= 0.01) {
+            p.y = H + Math.random() * 15;
+            p.x = Math.random() * W;
+            p.vy = -(Math.random() * 0.7 + 0.3);
+          }
+          if (p.x < -10) p.x = W + 10;
+          if (p.x > W + 10) p.x = -10;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.baseColor + Math.max(0, alpha).toFixed(3) + ')';
+          ctx.shadowBlur = p.r * 3;
+          ctx.shadowColor = p.baseColor + '0.75)';
+          ctx.fill();
+        });
+        requestAnimationFrame(animate);
+      };
+      animate();
+    })();
+  </script>
+{% endblock %}
